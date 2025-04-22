@@ -30,7 +30,9 @@ vql_lines = [
 # Add columns to OUTPUTSCHEMA
 for col in columns:
     vql_lines.append(
-        f'        "{col["name"]}" = \'{col["name"]}\' :\'{col["data_type"]}\' (description=\'{col["description"]}\'),'
+        f'        "{col["name"]}" = \'{col["name"]}\' :\'java.lang.String\' (OPT) '
+        f'(sourcetypedecimals=\'0\', sourcetypesize=\'16777216\', description=\'{col["description"]}\', '
+        f'sourcetypeid=\'12\', sourcetypename=\'{col["data_type"]}\'),'
     )
 
 # Remove trailing comma from the last column
@@ -43,8 +45,9 @@ vql_lines.append(f'CREATE OR REPLACE TABLE "{target_table}" I18N us_mst (')
 # Add columns to CREATE TABLE
 for col in columns:
     vql_lines.append(
-        f'        "{col["name"]}":{col["data_type"]} '
-        f'(description = \'{col["description"]}\'),'
+        f'        "{col["name"]}":{col["data_type"].lower()} '
+        f'(sourcetypeid = \'12\', sourcetypedecimals = \'0\', sourcetypesize = \'16777216\', '
+        f'description = \'{col["description"]}\'),'
     )
 
 # Remove trailing comma from the last column
