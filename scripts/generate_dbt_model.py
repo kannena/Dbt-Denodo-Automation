@@ -24,13 +24,16 @@ for col in columns:
     col_comment = col["description"]
     select_lines.append(f'    {col_name} -- {col_comment}')
 
-sql = f"""{{{{ config(materialized='{config["MetirializationType"]}', tags={config["Tags"]}) }}}}
+select_block = ",\n".join(select_lines)
 
--- {description}
-SELECT
-{',\n'.join(select_lines)}
-FROM {{{{ '% raw %' }}}}{{{{ source('{config["SourceApplicationName"]}', '{config["SourceTable"]}') }}}}{{{{ '% endraw %' }}}};
-"""
+# Final SQL
+sql = (
+    f"{{{{ config(materialized='{config['MetirializationType']}', tags={config['Tags']}) }}}}\n\n"
+    f"-- {description}\n"
+    f"SELECT\n"
+    f"{select_block}\n"
+    f"FROM {{% raw %}}{{{{ source('{config['SourceApplicationName']}', '{config['SourceTable']}') }}}}{{% endraw %}};"
+)
 
 # Ensure directory exists
 os.makedirs(model_path, exist_ok=True)
@@ -40,4 +43,3 @@ with open(os.path.join(model_path, f'{target_table}.sql'), 'w') as f:
     f.write(sql)
 
 print(f"✅ dbt model created at {model_path}{target_table}.sql")
-
