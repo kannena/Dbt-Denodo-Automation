@@ -29,7 +29,7 @@ sql = f"""{{{{ config(materialized='{config["MetirializationType"]}', tags={conf
 -- {description}
 SELECT
 {',\n'.join(select_lines)}
-FROM {{% raw %}}{{{{ source('{config["SourceApplicationName"]}', '{config["SourceTable"]}') }}}}{{% endraw %}};
+FROM {{{{ '% raw %' }}}}{{{{ source('{config["SourceApplicationName"]}', '{config["SourceTable"]}') }}}}{{{{ '% endraw %' }}}};
 """
 
 # Ensure directory exists
