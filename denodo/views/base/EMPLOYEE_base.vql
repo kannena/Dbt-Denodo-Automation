@@ -1,0 +1,6 @@
+CREATE OR REPLACE BASE VIEW EMPLOYEE (
+  EMP_ID VARCHAR (description = "Unique identifier for employee"),
+  FIRST_NAME VARCHAR (description = "First name of the employee"),
+  LAST_NAME VARCHAR (description = "Last name of the employee"),
+  HIRE_DATE DATE (description = "Hire date of the employee")
+);
