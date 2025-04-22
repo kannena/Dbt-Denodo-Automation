@@ -1,1 +1,13 @@
 
+{
+  "SourceTable": "SRC_EMPLOYEE",
+  "TargetTable": "EMPLOYEE",
+  "KeyColumns": ["EMP_ID"],
+  "SourceApplicationName": "HR",
+  "MetirializationType": "incremental",
+  "Tags": ["hr", "employee"],
+  "DenodoBaseViewPath": "denodo/views/base/",
+  "DenodoCleanViewPath": "denodo/views/clean/",
+  "DenodoBusinessEntityViewPath": "denodo/views/entity/",
+  "Dbtmodelpath": "models/hr/"
+}
