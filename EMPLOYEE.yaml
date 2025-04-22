@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: EMPLOYEE
+    description: "Employee master data loaded from HR source system"
+    columns:
+      - name: EMP_ID
+        description: "Unique identifier for employee"
+        data_type: VARCHAR
+      - name: FIRST_NAME
+        description: "First name of the employee"
+        data_type: VARCHAR
+      - name: LAST_NAME
+        description: "Last name of the employee"
+        data_type: VARCHAR
+      - name: HIRE_DATE
+        description: "Hire date of the employee"
+        data_type: DATE
