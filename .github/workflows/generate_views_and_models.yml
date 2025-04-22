@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas openpyxl snowflake-connector-python
+          pip install pandas openpyxl snowflake-connector-python pyyaml
 
       - name: Generate dbt model and Denodo views
         run: |
