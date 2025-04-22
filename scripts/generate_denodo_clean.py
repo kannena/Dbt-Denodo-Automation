@@ -19,17 +19,21 @@ with open(yaml_path) as f:
 
 columns = data['models'][0]['columns']
 
-# Generate SELECT statement with aliases
+# Build SELECT lines
 select_lines = []
 for col in columns:
     camel_case = to_camel_case(col["name"])
     select_lines.append(f'  {col["name"]} AS {camel_case} (description = "{col["description"]}")')
 
-vql = f"""CREATE OR REPLACE VIEW {target_table}_clean AS
-SELECT
-{",\n".join(select_lines)}
-FROM {target_table};
-"""
+select_block = ",\n".join(select_lines)
+
+# Final VQL
+vql = (
+    f"CREATE OR REPLACE VIEW {target_table}_clean AS\n"
+    f"SELECT\n"
+    f"{select_block}\n"
+    f"FROM {target_table};"
+)
 
 # Ensure path exists
 os.makedirs(vql_path, exist_ok=True)
