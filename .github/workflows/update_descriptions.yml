@@ -27,12 +27,12 @@ jobs:
       - name: Identify modified YAML files
         id: changed_yaml
         run: |
-          files=$(git diff --name-only HEAD~1 HEAD | grep '\.yaml$' || echo "")
+          files=$(git diff --name-only origin/main...HEAD | grep '\.yaml$' || echo "")
           echo "files=$files" >> $GITHUB_ENV
           echo "Modified YAMLs: $files"
 
       - name: Run scripts for each modified YAML
-        if: env.files != ""
+        if: env.files != ''
         run: |
           for file in $files; do
             table_name=$(basename "$file" .yaml)
@@ -43,5 +43,5 @@ jobs:
           done
 
       - name: No YAML files modified
-        if: env.files == ""
+        if: env.files == ''
         run: echo "⚠️ No modified YAML files found. Skipping processing."
