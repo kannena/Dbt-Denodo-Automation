@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 2  # Fetch the last 2 commits to allow comparison
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -29,7 +27,7 @@ jobs:
       - name: Identify modified YAML files
         id: changed_yaml
         run: |
-          files=$(git diff --name-only HEAD~1 HEAD || echo "")
+          files=$(git diff --name-only origin/main...HEAD | grep '\.yaml$' || echo "")
           echo "files=$files" >> $GITHUB_ENV
           echo "Modified YAMLs: $files"
 
@@ -39,9 +37,9 @@ jobs:
           for file in $files; do
             table_name=$(basename "$file" .yaml)
             echo "🔄 Processing table: $table_name"
-            python utility/update_column_descriptions.py "$file" "utility/config.json"
-            python utility/Generate_BaseView.py "$table_name"
-            python utility/Generate_CleanView.py "$table_name"
+            python ./utility/update_column_descriptions.py "$file" "./utility/config.json"
+            python ./utility/Generate_BaseView.py "$table_name"
+            python ./utility/Generate_CleanView.py "$table_name"
           done
 
       - name: No YAML files modified
