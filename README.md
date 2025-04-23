@@ -12,6 +12,13 @@ Traditionally, dbt models and Denodo views are created manually, often leading t
 - Applies description changes to Snowflake and Denodo environments post-PR merge.
 
 ---
+## 🔁 Workflow Overview
+
+The following flowchart shows the complete automation process — from local YAML/config generation to GitHub-triggered view creation and description updates:
+
+![image](https://github.com/user-attachments/assets/09ed8914-c4a4-4974-93a6-e0c05d2047fb)
+
+---
 
 ## 🛠️ Steps to Use
 
