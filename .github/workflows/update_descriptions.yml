@@ -1,9 +1,9 @@
-name: Update Column Descriptions & Views
+name: Generate dbt model and Denodo views
 
 on:
   push:
-    paths:
-      - '**/*.yaml'
+    branches:
+      - main
 
 jobs:
   update-descriptions:
