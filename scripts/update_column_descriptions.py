@@ -7,11 +7,13 @@ def update_column_descriptions(yaml_file, config_file):
     # Load YAML
     with open(yaml_file, 'r') as yml:
         column_data = yaml.safe_load(yml)
-
+    print(f"column_data: {column_data}")
+    
     # Load config for Snowflake credentials and table
     with open(config_file, 'r') as cfg:
         config = yaml.safe_load(cfg)
     print(f"config: {config}")
+    
     table_name = config['TargetTable']
     schema = 'ODS'
     database = 'DEV_EDW'
