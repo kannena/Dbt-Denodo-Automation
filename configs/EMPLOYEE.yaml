@@ -15,6 +15,6 @@ models:
         description: "Last name of the employee"
         data_type: VARCHAR
       - name: HIRE_DATE
-        description: "Hire date of the employee"
+        description: "Hire date of the employee 123"
         data_type: DATE
 
