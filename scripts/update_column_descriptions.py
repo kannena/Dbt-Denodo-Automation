@@ -9,7 +9,7 @@ def update_column_descriptions(yaml_file, config_file):
         column_data = yaml.safe_load(yml)
 
     # Load config for Snowflake credentials and table
-    with open(config_file, 'r') as cfg:
+    with open(../utility/config_file, 'r') as cfg:
         config = yaml.safe_load(cfg)
 
     table_name = config['TargetTable']
