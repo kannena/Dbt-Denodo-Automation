@@ -125,6 +125,12 @@ denodo/
 │   │   └── EMPLOYEE_base.vql     # Auto-generated base view (with descriptions)
 │   └── clean/
 │       └── EMPLOYEE_clean.vql    # Auto-generated clean view (camelCase columns)
+scripts/
+├── generate_dbt_model.py
+├── generate_denodo_base.py
+├── generate_denodo_clean.py
+├── update_column_descriptions.py
+
 ```
 
 ---
