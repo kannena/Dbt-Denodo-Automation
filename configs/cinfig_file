@@ -1,9 +1,0 @@
-{
-  "Source_Table_name": "STG_SFDC_WORKORDER",
-  "SnowFlakeUserId": "kannena@repsrv.com",
-  "SnowFlakeAccount": "rsg-nonprod",
-  "SnowFlakewarehouse": "DEV_LOAD_WH",
-  "SnowFlakeRole": "ENTERPRISEDATAREADNONPROD",
-  "SnowFlakeDatabase": "DEV_EDW",
-  "SnowFlakeSchema": "STAGING" 
-}
