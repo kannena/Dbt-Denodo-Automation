@@ -27,20 +27,23 @@ jobs:
       - name: Install dependencies
         run: pip install snowflake-connector-python pyyaml
 
-      - name: Identify modified YAML files
-        id: changed_yaml
+      - name: Find modified YAML files and run scripts
         run: |
-          files=$(git diff --name-only origin/main...HEAD | grep 'configs/.*\.yaml$' || true)
-          echo "files=$files" >> $GITHUB_ENV
+          echo "🔍 Checking for modified YAML files in configs/..."
+          changed_files=$(git diff --name-only origin/main...HEAD | grep 'configs/.*\.yaml$' || true)
+          
+          if [ -z "$changed_files" ]; then
+            echo "✅ No YAML files changed. Skipping job."
+            exit 0
+          fi
 
-      - name: Show modified YAML files
-        run: echo "📝 Modified YAML files: $files"
+          echo "📝 Modified YAML files:"
+          echo "$changed_files"
 
-      - name: Run scripts for each modified YAML
-        run: |
-          for file in $files; do
+          for file in $changed_files; do
             table_name=$(basename "$file" .yaml)
             echo "🔄 Processing table: $table_name from $file"
+
             python scripts/update_column_descriptions.py "$file" "configs/template_config.json"
             python scripts/generate_dbt_model.py "$table_name"
             python scripts/generate_denodo_base.py "$table_name"
