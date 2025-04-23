@@ -24,10 +24,19 @@ jobs:
       - name: Install dependencies
         run: pip install snowflake-connector-python pyyaml
 
+      - name: Debug Git State
+        run: |
+          echo "Current branch:"
+          git branch --show-current
+          echo "Last 5 commits:"
+          git log -5 --oneline
+          echo "Changed files in the last commit:"
+          git diff --name-only HEAD~1 HEAD
+
       - name: Identify modified YAML files
         id: changed_yaml
         run: |
-          files=$(git diff --name-only origin/main...HEAD | grep '\.yaml$' || echo "")
+          files=$(git diff --name-only HEAD~1 HEAD | grep '\.yaml$' || echo "")
           echo "files=$files" >> $GITHUB_ENV
           echo "Modified YAMLs: $files"
 
