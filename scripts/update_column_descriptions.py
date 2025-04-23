@@ -13,9 +13,8 @@ def update_column_descriptions(yaml_file, config_file):
         config = yaml.safe_load(cfg)
 
     table_name = config['TargetTable']
-    schema = config['SnowflakeSchema']
-    database = config['SnowflakeDatabase']
-
+    schema = config['SnowFlakeSchema']
+    database = config['SnowFlakeDatabase']
 
 
     for column in column_data['columns']:
