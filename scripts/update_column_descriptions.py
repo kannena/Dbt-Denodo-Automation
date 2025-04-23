@@ -19,7 +19,8 @@ def update_column_descriptions(yaml_file, config_file):
     database = 'DEV_EDW'
 
 
-    for column in column_data['columns']:
+    columns = column_data['models'][0]['columns']
+    for column in columns:
         col_name = column['name']
         description = column.get('description', '')
 
