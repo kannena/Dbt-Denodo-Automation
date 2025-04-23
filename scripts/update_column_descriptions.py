@@ -16,18 +16,7 @@ def update_column_descriptions(yaml_file, config_file):
     schema = config['SnowflakeSchema']
     database = config['SnowflakeDatabase']
 
-    # Snowflake connection
-    conn = snowflake.connector.connect(
-        user=config['SnowflakeUserId'],
-        password=os.environ.get("SNOWFLAKE_PASSWORD"),
-        account=config['SnowflakeAccount'],
-        warehouse=config['SnowflakeWarehouse'],
-        role=config['SnowflakeRole'],
-        database=database,
-        schema=schema
-    )
 
-    cur = conn.cursor()
 
     for column in column_data['columns']:
         col_name = column['name']
