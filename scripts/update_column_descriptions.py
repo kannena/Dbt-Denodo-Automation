@@ -11,7 +11,7 @@ def update_column_descriptions(yaml_file, config_file):
     # Load config for Snowflake credentials and table
     with open(config_file, 'r') as cfg:
         config = yaml.safe_load(cfg)
-
+    print(f"config: {config}")
     table_name = config['TargetTable']
     schema = config['SnowFlakeSchema']
     database = config['SnowFlakeDatabase']
