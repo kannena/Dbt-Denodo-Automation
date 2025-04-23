@@ -35,7 +35,7 @@ SELECT
   CURRENT_TIMESTAMP AS SYS_CREATE_DTM,
   CURRENT_TIMESTAMP AS SYS_LAST_UPDATE_DTM,
   INS_BATCH_ID AS SYS_EXEC_ID,
-  { string_to_number('EMP_ID', 38, 0) } AS EMP_ID -- Unique identifier for employee,
+  { string_to_number('EMP_ID', 38, 0) } AS EMP_ID -- Unique identifier for employee 123,
   { set_varchar_length('FIRST_NAME', 240) } AS FIRST_NAME -- First name of the employee,
   { set_varchar_length('LAST_NAME', 240) } AS LAST_NAME -- Last name of the employee,
   { string_to_timezone_ntz('HIRE_DATE') } AS HIRE_DATE -- Hire date of the employee
