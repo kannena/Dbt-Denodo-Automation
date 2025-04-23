@@ -3,5 +3,5 @@ SELECT
   EMP_ID AS EmpId (description = "Unique identifier for employee"),
   FIRST_NAME AS FirstName (description = "First name of the employee"),
   LAST_NAME AS LastName (description = "Last name of the employee"),
-  HIRE_DATE AS HireDate (description = "Hire date of the employee 123")
+  HIRE_DATE AS HireDate (description = "Hire date of the employee")
 FROM EMPLOYEE;

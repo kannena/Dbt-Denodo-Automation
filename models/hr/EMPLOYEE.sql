@@ -38,7 +38,7 @@ SELECT
   { string_to_number('EMP_ID', 38, 0) } AS EMP_ID -- Unique identifier for employee,
   { set_varchar_length('FIRST_NAME', 240) } AS FIRST_NAME -- First name of the employee,
   { set_varchar_length('LAST_NAME', 240) } AS LAST_NAME -- Last name of the employee,
-  { string_to_timezone_ntz('HIRE_DATE') } AS HIRE_DATE -- Hire date of the employee 123
+  { string_to_timezone_ntz('HIRE_DATE') } AS HIRE_DATE -- Hire date of the employee
 FROM DEDUPE_CTE
 LEFT JOIN INS_BATCH_ID USING (BATCH_KEY_ID)
 WHERE ROW_NUM = 1;
