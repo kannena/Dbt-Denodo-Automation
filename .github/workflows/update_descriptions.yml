@@ -1,0 +1,40 @@
+name: Update Column Descriptions & Views
+
+on:
+  push:
+    paths:
+      - '**/*.yaml'
+
+jobs:
+  update-descriptions:
+    runs-on: ubuntu-latest
+
+    env:
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install snowflake-connector-python pyyaml
+
+      - name: Identify modified YAML files
+        id: changed_yaml
+        run: |
+          echo "files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '.yaml$' | xargs)" >> $GITHUB_OUTPUT
+
+      - name: Run scripts for each modified YAML
+        run: |
+          for file in ${{ steps.changed_yaml.outputs.files }}; do
+            table_name=$(basename "$file" .yaml)
+            echo "🔄 Processing table: $table_name"
+            python utility/update_column_descriptions.py "$file" "utility/config.json"
+            python utility/Generate_BaseView.py "$table_name"
+            python utility/Generate_CleanView.py "$table_name"
+          done
