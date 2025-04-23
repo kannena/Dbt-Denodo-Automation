@@ -1,4 +1,4 @@
-name: Update snowflake table column description and generate dbt model and Denodo views
+name: Update Snowflake table column description and generate dbt model and Denodo views
 
 on:
   push:
@@ -27,16 +27,21 @@ jobs:
       - name: Identify modified YAML files
         id: changed_yaml
         run: |
-          files=$(git diff --name-only origin/main...HEAD | grep '\.yaml$' | xargs)
-          echo "files=$files" >> $GITHUB_OUTPUT
-          echo "Modified YAMLs: ${{ steps.changed_yaml.outputs.files }}"  
+          files=$(git diff --name-only HEAD~1 HEAD | grep '\.yaml$' || echo "")
+          echo "files=$files" >> $GITHUB_ENV
+          echo "Modified YAMLs: $files"
 
       - name: Run scripts for each modified YAML
+        if: env.files != ""
         run: |
-          for file in ${{ steps.changed_yaml.outputs.files }}; do
+          for file in $files; do
             table_name=$(basename "$file" .yaml)
             echo "🔄 Processing table: $table_name"
             python utility/update_column_descriptions.py "$file" "utility/config.json"
             python utility/Generate_BaseView.py "$table_name"
             python utility/Generate_CleanView.py "$table_name"
           done
+
+      - name: No YAML files modified
+        if: env.files == ""
+        run: echo "⚠️ No modified YAML files found. Skipping processing."
