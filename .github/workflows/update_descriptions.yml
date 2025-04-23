@@ -33,11 +33,14 @@ jobs:
           files=$(git diff --name-only origin/main...HEAD | grep 'configs/.*\.yaml$' || true)
           echo "files=$files" >> $GITHUB_OUTPUT
 
+      - name: Show modified YAML files
+        run: echo "📝 Modified YAML files: ${{ steps.changed_yaml.outputs.files }}"
+
       - name: Run scripts for each modified YAML
         run: |
           for file in ${{ steps.changed_yaml.outputs.files }}; do
             table_name=$(basename "$file" .yaml)
-            echo "🔄 Processing table: $table_name"
+            echo "🔄 Processing table: $table_name from $file"
             python scripts/update_column_descriptions.py "$file" "configs/template_config.json"
             python scripts/generate_dbt_model.py "$table_name"
             python scripts/generate_denodo_base.py "$table_name"
