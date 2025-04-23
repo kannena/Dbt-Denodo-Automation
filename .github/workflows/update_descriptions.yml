@@ -1,4 +1,4 @@
-name: Generate dbt model and Denodo views
+name: Update snowflake table column description and generate dbt model and Denodo views
 
 on:
   push:
