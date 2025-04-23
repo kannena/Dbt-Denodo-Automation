@@ -36,7 +36,7 @@ def update_column_descriptions(yaml_file, config_file):
         if description:
             sql = f"""ALTER TABLE "{database}"."{schema}"."{table_name}" MODIFY COLUMN "{col_name}" COMMENT = '{description}'"""
             print(f"Executing: {sql}")
-            cur.execute(sql)
+            # cur.execute(sql)
 
     cur.close()
     conn.close()
