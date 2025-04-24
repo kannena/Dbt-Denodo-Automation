@@ -26,7 +26,7 @@ jobs:
         run: |
           echo "🔍 Looking for newly added YAML files..."
           # added_files=$(git diff --name-only --diff-filter=A HEAD~1 HEAD | grep '^configs/.*\.yaml$' || true)
-          added_files=$(git diff --name-only HEAD~1 HEAD | grep '^configs/.*\.yaml$' || true)
+          added_files=$(git diff --name-only HEAD~1 HEAD | grep '\.yaml$' || true)
 
           if [ -z "$added_files" ]; then
             echo "✅ No new YAML files added. Skipping generation."
