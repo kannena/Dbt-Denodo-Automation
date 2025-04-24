@@ -27,9 +27,7 @@ vql_lines = [
 
 for col in columns:
     vql_lines.append(
-        f'        "{col["name"]}" = '{col["name"]}' :'java.lang.String' (OPT) '
-        f'(sourcetypedecimals="0", sourcetypesize="16777216", description="{col["description"]}", '
-        f'sourcetypeid="12", sourcetypename="{col["data_type"]}")'
+        f'        "{col["name"]}" = \'{col["name"]}\' :\'java.lang.String\' (OPT) (sourcetypedecimals="0", sourcetypesize="16777216", description="{col["description"]}", sourcetypeid="12", sourcetypename="{col["data_type"]}")'
     )
 
 vql_lines.append("    );")
