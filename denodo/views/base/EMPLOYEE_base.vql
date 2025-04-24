@@ -1,0 +1,19 @@
+# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC "EMPLOYEE"
+    FOLDER = '/1. virtual model/1. connectivity/2. base views/1. source views'
+    DATASOURCENAME=rsiconnections."ds_CLOUD_DW"
+    RELATIONNAME='EMPLOYEE'
+    OUTPUTSCHEMA (
+        "EMP_ID" = 'EMP_ID' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="16777216", description="Unique identifier for employee 1235567899", sourcetypeid="12", sourcetypename="VARCHAR")
+        "FIRST_NAME" = 'FIRST_NAME' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="16777216", description="First name of the employee", sourcetypeid="12", sourcetypename="VARCHAR")
+        "LAST_NAME" = 'LAST_NAME' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="16777216", description="Last name of the employee", sourcetypeid="12", sourcetypename="VARCHAR")
+        "HIRE_DATE" = 'HIRE_DATE' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="16777216", description="Hire date of the employee", sourcetypeid="12", sourcetypename="DATE")
+    );
+
+CREATE OR REPLACE TABLE "EMPLOYEE" I18N us_mst (
+        "EMP_ID":varchar (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="16777216", description="Unique identifier for employee 1235567899")
+        "FIRST_NAME":varchar (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="16777216", description="First name of the employee")
+        "LAST_NAME":varchar (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="16777216", description="Last name of the employee")
+        "HIRE_DATE":date (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="16777216", description="Hire date of the employee")
+    );
+DESCRIPTION = "Employee master data loaded from HR source system";
