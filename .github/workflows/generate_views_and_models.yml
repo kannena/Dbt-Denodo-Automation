@@ -22,11 +22,27 @@ jobs:
         run: |
           pip install pandas openpyxl snowflake-connector-python pyyaml
 
-      - name: Generate dbt model and Denodo views
+      - name: Find newly added YAML files and generate views
         run: |
-          python scripts/generate_dbt_model.py
-          python scripts/generate_denodo_base.py
-          python scripts/generate_denodo_clean.py
+          echo "🔍 Looking for newly added YAML files..."
+          added_files=$(git diff --name-only --diff-filter=A HEAD~1 HEAD | grep '^configs/.*\.yaml$' || true)
+
+          if [ -z "$added_files" ]; then
+            echo "✅ No new YAML files added. Skipping generation."
+            exit 0
+          fi
+
+          echo "🆕 New YAML files detected:"
+          echo "$added_files"
+
+          for file in $added_files; do
+            table_name=$(basename "$file" .yaml)
+            echo "⚙️ Processing: $table_name"
+
+            python scripts/generate_dbt_model.py "$table_name"
+            python scripts/generate_denodo_base.py "$table_name"
+            python scripts/generate_denodo_clean.py "$table_name"
+          done
 
       - name: Commit and push generated files
         env:
@@ -36,6 +52,5 @@ jobs:
           git config --global user.email 'actions@github.com'
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git add .
-          git commit -m "Generated dbt model and Denodo views from config" || echo "No changes to commit"
+          git commit -m "✅ Generated dbt and Denodo views for newly added tables" || echo "No changes to commit"
           git push origin HEAD:${{ github.ref_name }}
-
