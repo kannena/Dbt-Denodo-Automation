@@ -5,7 +5,7 @@ models:
     description: "Employee master data loaded from HR source system"
     columns:
       - name: EMP_ID
-        description: "Unique identifier for employee "
+        description: "Unique identifier for employee 1234456788"
         data_type: VARCHAR
       - name: FIRST_NAME
         description: "First name of the employee"
