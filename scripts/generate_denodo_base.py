@@ -20,7 +20,7 @@ vql_path = config["DenodoBaseViewPath"]
 vql_lines = [
     "# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!",
     f'CREATE OR REPLACE WRAPPER JDBC "{table_name}"',
-    '    FOLDER = '/1. virtual model/1. connectivity/2. base views/1. source views'',
+    "    FOLDER = '/1. virtual model/1. connectivity/2. base views/1. source views'",
     '    DATASOURCENAME=rsiconnections."ds_CLOUD_DW"',
     f'    RELATIONNAME='{table_name}'',
     '    OUTPUTSCHEMA ('
