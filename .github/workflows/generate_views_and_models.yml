@@ -22,24 +22,28 @@ jobs:
         run: |
           pip install pandas openpyxl snowflake-connector-python pyyaml
 
-      - name: Find newly added YAML files and generate views
+      - name: Find modified or added YAML files
         run: |
-          echo "🔍 Looking for newly added YAML files..."
-          # added_files=$(git diff --name-only --diff-filter=A HEAD~1 HEAD | grep '^configs/.*\.yaml$' || true)
-          added_files=$(git diff --name-only HEAD~1 HEAD | grep '\.yaml$' || true)
-
+          echo "🔍 Looking for YAML files..."
+      
+          if git rev-parse HEAD~1 >/dev/null 2>&1; then
+            added_files=$(git diff --name-only HEAD~1 HEAD | grep '\.yaml$' || true)
+          else
+            echo "⚠️ HEAD~1 not available (maybe first commit or shallow clone). Checking all YAMLs."
+            added_files=$(git ls-files 'configs/*.yaml')
+          fi
+      
           if [ -z "$added_files" ]; then
-            echo "✅ No new YAML files added. Skipping generation."
+            echo "✅ No YAML files detected. Skipping generation."
             exit 0
           fi
-
-          echo "🆕 New YAML files detected:"
+      
+          echo "📝 YAML files to process:"
           echo "$added_files"
-
+      
           for file in $added_files; do
             table_name=$(basename "$file" .yaml)
             echo "⚙️ Processing: $table_name"
-
             python scripts/generate_dbt_model.py "$table_name"
             python scripts/generate_denodo_base.py "$table_name"
             python scripts/generate_denodo_clean.py "$table_name"
