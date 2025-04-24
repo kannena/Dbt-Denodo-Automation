@@ -89,7 +89,7 @@ config_template = {
     "Dbtmodelpath": "models/"
 }
 
-config_file_path = f"{SRC_TABLE_NAME}_config.json"
+config_file_path = f"{SRC_TABLE_NAME}.json"
 with open(config_file_path, 'w') as config_file:
     json.dump(config_template, config_file, indent=4)
 
