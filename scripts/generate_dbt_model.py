@@ -3,22 +3,21 @@ import json
 import yaml
 import os
 
-# Accept table name as CLI argument
+# Accept table name
 table_name = sys.argv[1]
 
-# File paths
+# Paths
 json_path = f'configs/{table_name}.json'
 yaml_path = f'configs/{table_name}.yaml'
 
-# Load config JSON
+# Load configs
 with open(json_path) as f:
     config = json.load(f)
 
-# Load YAML
 with open(yaml_path) as f:
     data = yaml.safe_load(f)
 
-# Extract data
+# Extract values
 columns = data['models'][0]['columns']
 model_path = config["Dbtmodelpath"]
 source_table = config["SourceTable"]
@@ -28,7 +27,7 @@ tags = config["Tags"]
 key_columns = config["KeyColumns"]
 description = data['models'][0].get('description', '')
 
-# Build SELECT block
+# SELECT block
 select_lines = []
 for col in columns:
     col_name = col["name"]
@@ -41,12 +40,10 @@ for col in columns:
         select_lines.append(f'  {{{{ string_to_number("{col_name}", 38, 0) }}}} AS {col_name}, -- {col_comment}')
     else:
         select_lines.append(f'  {{{{ set_varchar_length("{col_name}", 240) }}}} AS {col_name}, -- {col_comment}')
-
 select_block = ",\n".join(select_lines)
 
-# Build dbt model SQL
-sql = f"""
-{{{{ config(
+# Static SQL parts that contain {% ... %} must NOT be inside f-strings
+jinja_sql = f"""{{{{ config(
     materialized='{materialization_type}',
     unique_key='PK_{table_name}_ID',
     merge_no_update_columns=['SYS_CREATE_DTM'],
@@ -59,13 +56,17 @@ GET_NEW_RECORDS AS (
   SELECT *, 1 AS BATCH_KEY_ID
   FROM
   {{{{ source('{source_app}', '{source_table}') }}}}
+"""
+
+# Append Jinja block outside f-string
+jinja_sql += """
   {% if is_incremental() %}
   WHERE
-  SF_INSERT_TIMESTAMP > '{{{{ get_max_event_time("SF_INSERT_TIMESTAMP", not_minus3=True) }}}}'
+  SF_INSERT_TIMESTAMP > '{{ get_max_event_time("SF_INSERT_TIMESTAMP", not_minus3=True) }}'
   {% endif %}
 ),
 DEDUPE_CTE AS (
-  SELECT *, ROW_NUMBER() OVER (PARTITION BY {", ".join(key_columns)} ORDER BY SF_INSERT_TIMESTAMP DESC) AS ROW_NUM
+  SELECT *, ROW_NUMBER() OVER (PARTITION BY """ + ", ".join(key_columns) + """) AS ROW_NUM
   FROM GET_NEW_RECORDS
 ),
 INS_BATCH_ID AS (
@@ -73,20 +74,11 @@ INS_BATCH_ID AS (
 )
 
 SELECT
-  {{{{ generate_surrogate_key([{", ".join([f"'{col}'" for col in key_columns])}]) }}}} AS PK_{table_name}_ID,
+  {{ generate_surrogate_key([""" + ", ".join([f"'{col}'" for col in key_columns]) + """]) }} AS PK_""" + table_name + """_ID,
   CURRENT_TIMESTAMP AS SYS_CREATE_DTM,
   CURRENT_TIMESTAMP AS SYS_LAST_UPDATE_DTM,
   INS_BATCH_ID AS SYS_EXEC_ID,
-{select_block}
+""" + select_block + """
 FROM DEDUPE_CTE
 LEFT JOIN INS_BATCH_ID USING (BATCH_KEY_ID)
-WHERE ROW_NUM = 1;
-"""
-
-# Write the SQL file
-os.makedirs(model_path, exist_ok=True)
-output_file = os.path.join(model_path, f'{table_name}.sql')
-with open(output_file, 'w') as f:
-    f.write(sql)
-
-print(f"✅ dbt model created at {output_file}")
+WHERE ROW_NUM = 1_
