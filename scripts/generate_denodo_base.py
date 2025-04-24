@@ -28,12 +28,10 @@ vql_lines = [
 for col in columns:
     vql_lines.append(
         f'        "{col["name"]}" = '{col["name"]}' :'java.lang.String' (OPT) '
-        f'(sourcetypedecimals='0', sourcetypesize='16777216', description='{col["description"]}', '
-        f'sourcetypeid='12', sourcetypename='{col["data_type"]}'),'
+        f'(sourcetypedecimals="0", sourcetypesize="16777216", description="{col["description"]}", '
+        f'sourcetypeid="12", sourcetypename="{col["data_type"]}")'
     )
 
-# Remove trailing comma from last column
-vql_lines[-1] = vql_lines[-1].rstrip(',')
 vql_lines.append("    );")
 vql_lines.append("")
 vql_lines.append(f'CREATE OR REPLACE TABLE "{table_name}" I18N us_mst (')
@@ -41,13 +39,12 @@ vql_lines.append(f'CREATE OR REPLACE TABLE "{table_name}" I18N us_mst (')
 for col in columns:
     vql_lines.append(
         f'        "{col["name"]}":{col["data_type"].lower()} '
-        f'(sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '16777216', '
-        f'description = '{col["description"]}'),'
+        f'(sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="16777216", '
+        f'description="{col["description"]}")'
     )
 
-vql_lines[-1] = vql_lines[-1].rstrip(',')
 vql_lines.append("    );")
-vql_lines.append(f'DESCRIPTION = '{data["models"][0]["description"]}';')
+vql_lines.append(f'DESCRIPTION = "{data["models"][0]["description"]}";')
 
 # Save to file
 os.makedirs(vql_path, exist_ok=True)
