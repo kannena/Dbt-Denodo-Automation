@@ -16,7 +16,8 @@ Traditionally, dbt models and Denodo views are created manually, often leading t
 
 The following flowchart shows the complete automation process — from local YAML/config generation to GitHub-triggered view creation and description updates:
 
-![image](https://github.com/user-attachments/assets/a0345093-0883-43b7-bacf-23c289721a5f)
+![image](https://github.com/user-attachments/assets/58feb9e7-764d-4c0f-9e83-2491431172be)
+
 
 
 ---
