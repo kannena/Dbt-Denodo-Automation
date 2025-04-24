@@ -3,21 +3,17 @@ import json
 import yaml
 import os
 
-# Accept table name
 table_name = sys.argv[1]
 
-# Paths
 json_path = f'configs/{table_name}.json'
 yaml_path = f'configs/{table_name}.yaml'
 
-# Load configs
 with open(json_path) as f:
     config = json.load(f)
 
 with open(yaml_path) as f:
     data = yaml.safe_load(f)
 
-# Extract values
 columns = data['models'][0]['columns']
 model_path = config["Dbtmodelpath"]
 source_table = config["SourceTable"]
@@ -27,7 +23,7 @@ tags = config["Tags"]
 key_columns = config["KeyColumns"]
 description = data['models'][0].get('description', '')
 
-# SELECT block
+# Generate SELECT lines
 select_lines = []
 for col in columns:
     col_name = col["name"]
@@ -35,15 +31,19 @@ for col in columns:
     if col_name == "SF_INSERT_TIMESTAMP":
         select_lines.append(f'  {col_name} AS {col_name} -- {col_comment}')
     elif col_name.endswith("_DATE"):
-        select_lines.append(f'  {{{{ string_to_timezone_ntz("{col_name}") }}}} AS {col_name}, -- {col_comment}')
+        select_lines.append(f'  {{ string_to_timezone_ntz("{col_name}") }} AS {col_name}, -- {col_comment}')
     elif col_name.endswith("_ID"):
-        select_lines.append(f'  {{{{ string_to_number("{col_name}", 38, 0) }}}} AS {col_name}, -- {col_comment}')
+        select_lines.append(f'  {{ string_to_number("{col_name}", 38, 0) }} AS {col_name}, -- {col_comment}')
     else:
-        select_lines.append(f'  {{{{ set_varchar_length("{col_name}", 240) }}}} AS {col_name}, -- {col_comment}')
+        select_lines.append(f'  {{ set_varchar_length("{col_name}", 240) }} AS {col_name}, -- {col_comment}')
+
 select_block = ",\n".join(select_lines)
 
-# Final SQL template
-sql = f"""{{{{ config(
+# Start building SQL in parts
+sql_parts = []
+
+# Header with config
+sql_parts.append(f"""{{{{ config(
     materialized='{materialization_type}',
     unique_key='PK_{table_name}_ID',
     merge_no_update_columns=['SYS_CREATE_DTM'],
@@ -56,12 +56,19 @@ GET_NEW_RECORDS AS (
   SELECT *, 1 AS BATCH_KEY_ID
   FROM
   {{{{ source('{source_app}', '{source_table}') }}}}
+""")
+
+# Append the Jinja block *outside* f-string
+sql_parts.append("""
   {% if is_incremental() %}
   WHERE
   SF_INSERT_TIMESTAMP > '{{ get_max_event_time("SF_INSERT_TIMESTAMP", not_minus3=True) }}'
   {% endif %}
 ),
-DEDUPE_CTE AS (
+""")
+
+# Continue SQL
+sql_parts.append(f"""DEDUPE_CTE AS (
   SELECT *, ROW_NUMBER() OVER (PARTITION BY {", ".join(key_columns)} ORDER BY SF_INSERT_TIMESTAMP DESC) AS ROW_NUM
   FROM GET_NEW_RECORDS
 ),
@@ -78,12 +85,15 @@ SELECT
 FROM DEDUPE_CTE
 LEFT JOIN INS_BATCH_ID USING (BATCH_KEY_ID)
 WHERE ROW_NUM = 1;
-"""
+""")
 
-# Save output
+# Final SQL string
+final_sql = "".join(sql_parts)
+
+# Write output
 os.makedirs(model_path, exist_ok=True)
 output_file = os.path.join(model_path, f'{table_name}.sql')
 with open(output_file, 'w') as f:
-    f.write(sql)
+    f.write(final_sql)
 
 print(f"✅ dbt model created at {output_file}")
