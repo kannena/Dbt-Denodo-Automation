@@ -32,7 +32,7 @@ def update_column_descriptions(table_name):
         if description:
             sql = f"""ALTER TABLE "{database}"."{schema}"."{table_name}" MODIFY COLUMN "{col_name}" COMMENT = '{description}'"""
             print(f"Executing: {sql}")
-            cur.execute(sql)
+            # cur.execute(sql)
 
 
     print("✅ Descriptions updated successfully.")
