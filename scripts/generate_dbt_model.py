@@ -1,28 +1,28 @@
-import yaml
+import sys
 import json
+import yaml
 import os
+import re
 
-# Load config
-with open('configs/template_config.json') as f:
+table_name = sys.argv[1]
+json_path = f'configs/{table_name}.json'
+yaml_path = f'configs/{table_name}.yaml'
+
+with open(json_path) as f:
     config = json.load(f)
 
+with open(yaml_path) as f:
+    data = yaml.safe_load(f)
+
+columns = data['models'][0]['columns']
 model_path = config["Dbtmodelpath"]
-target_table = config["TargetTable"]
 source_table = config["SourceTable"]
 source_app = config["SourceApplicationName"]
 materialization_type = config["MetirializationType"]
 tags = config["Tags"]
 key_columns = config["KeyColumns"]
+description = data['models'][0]['description']
 
-# Load YAML column definitions
-yaml_file = f'configs/{target_table}.yaml'
-with open(yaml_file, 'r') as f:
-    content = yaml.safe_load(f)
-
-columns = content['models'][0]['columns']
-description = content['models'][0]['description']
-
-# Generate SELECT block with transformations
 select_lines = []
 for col in columns:
     col_name = col["name"]
@@ -38,12 +38,11 @@ for col in columns:
 
 select_block = ",\n".join(select_lines)
 
-# Generate final SQL
 sql = f"""
 {{
     config(
         materialized='{materialization_type}',
-        unique_key='PK_{target_table}_ID', -- PK_(TARGET TABLE NAME)_ID
+        unique_key='PK_{table_name}_ID',
         merge_no_update_columns=['SYS_CREATE_DTM'],
         tags={tags}
     )
@@ -55,13 +54,11 @@ GET_NEW_RECORDS AS (
   SELECT *, 1 AS BATCH_KEY_ID
   FROM
   {{% raw %}}{{{{ source('{source_app}', '{source_table}') }}}}{{% endraw %}}
-  -- Get last update from staging table
   {{% if is_incremental() %}}
   WHERE
   SF_INSERT_TIMESTAMP > '{{{{ get_max_event_time('SF_INSERT_TIMESTAMP', not_minus3=True) }}}}'
   {{% endif %}}
 ),
--- Remove any duplicate data from multiple event triggers, partition will be on key columns
 DEDUPE_CTE AS (
   SELECT *, ROW_NUMBER() OVER (PARTITION BY {", ".join(key_columns)} ORDER BY SF_INSERT_TIMESTAMP DESC) AS ROW_NUM
   FROM GET_NEW_RECORDS
@@ -71,8 +68,7 @@ INS_BATCH_ID AS (
 )
 
 SELECT
-  -- PK generation on key columns
-  {{ generate_surrogate_key([{", ".join([f"'{col}'" for col in key_columns])}]) }} AS PK_{target_table}_ID,
+  {{ generate_surrogate_key([{", ".join([f"'{col}'" for col in key_columns])}]) }} AS PK_{table_name}_ID,
   CURRENT_TIMESTAMP AS SYS_CREATE_DTM,
   CURRENT_TIMESTAMP AS SYS_LAST_UPDATE_DTM,
   INS_BATCH_ID AS SYS_EXEC_ID,
@@ -82,11 +78,8 @@ LEFT JOIN INS_BATCH_ID USING (BATCH_KEY_ID)
 WHERE ROW_NUM = 1;
 """
 
-# Ensure directory exists
 os.makedirs(model_path, exist_ok=True)
-
-# Write SQL
-output_file = os.path.join(model_path, f'{target_table}.sql')
+output_file = os.path.join(model_path, f'{table_name}.sql')
 with open(output_file, 'w') as f:
     f.write(sql)
 
