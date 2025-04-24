@@ -30,11 +30,11 @@ for col in columns:
     if col_name == "SF_INSERT_TIMESTAMP":
         select_lines.append(f'  {col_name} AS {col_name} -- {col_comment}')
     elif col_name.endswith("_DATE"):
-        select_lines.append(f'  {{ {{ string_to_timezone_ntz("{col_name}") }} }} AS {col_name}, -- {col_comment}')
+        select_lines.append(f'  {{ string_to_timezone_ntz("{col_name}") }} AS {col_name}, -- {col_comment}')
     elif col_name.endswith("_ID"):
-        select_lines.append(f'  {{ {{ string_to_number("{col_name}", 38, 0) }} }} AS {col_name}, -- {col_comment}')
+        select_lines.append(f'  {{ string_to_number("{col_name}", 38, 0) }} AS {col_name}, -- {col_comment}')
     else:
-        select_lines.append(f'  {{ {{ set_varchar_length("{col_name}", 240) }} }} AS {col_name}, -- {col_comment}')
+        select_lines.append(f'  {{ set_varchar_length("{col_name}", 240) }} AS {col_name}, -- {col_comment}')
 
 select_block = "\n".join(select_lines)
 
@@ -53,11 +53,11 @@ WITH
 GET_NEW_RECORDS AS (
   SELECT *, 1 AS BATCH_KEY_ID
   FROM
-  {{ {{ source('{source_app}', '{source_table}') }} }}
-  {{% if is_incremental() %}}
+  {{ source('{source_app}', '{source_table}') }}
+  {% if is_incremental() %}
   WHERE
-  SF_INSERT_TIMESTAMP > '{{ {{ get_max_event_time("SF_INSERT_TIMESTAMP", not_minus3=True) }} }}'
-  {{% endif %}}
+  SF_INSERT_TIMESTAMP > '{{ get_max_event_time("SF_INSERT_TIMESTAMP", not_minus3=True) }}'
+  {% endif %}
 ),
 DEDUPE_CTE AS (
   SELECT *, ROW_NUMBER() OVER (PARTITION BY {", ".join(key_columns)} ORDER BY SF_INSERT_TIMESTAMP DESC) AS ROW_NUM
@@ -68,7 +68,7 @@ INS_BATCH_ID AS (
 )
 
 SELECT
-  {{ {{ generate_surrogate_key([{", ".join([f"'{col}'" for col in key_columns])}]) }} }} AS PK_{table_name}_ID,
+  {{ generate_surrogate_key([{", ".join([f"'{col}'" for col in key_columns])}]) }} AS PK_{table_name}_ID,
   CURRENT_TIMESTAMP AS SYS_CREATE_DTM,
   CURRENT_TIMESTAMP AS SYS_LAST_UPDATE_DTM,
   INS_BATCH_ID AS SYS_EXEC_ID,
