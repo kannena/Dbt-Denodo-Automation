@@ -21,7 +21,7 @@ vql_lines = [
     f'CREATE OR REPLACE WRAPPER JDBC "{table_name}"',
     "    FOLDER = '/1. virtual model/1. connectivity/2. base views/1. source views'",
     '    DATASOURCENAME=rsiconnections."ds_CLOUD_DW"',
-    f"    RELATIONNAME='{table_name}',",
+    f"    RELATIONNAME='{table_name}'",
     "    OUTPUTSCHEMA ("
 ]
 
@@ -32,6 +32,7 @@ for col in columns:
         f'sourcetypeid='12', sourcetypename='{col["data_type"]}'),'
     )
 
+# Remove trailing comma from last column
 vql_lines[-1] = vql_lines[-1].rstrip(',')
 vql_lines.append("    );")
 vql_lines.append("")
@@ -46,8 +47,9 @@ for col in columns:
 
 vql_lines[-1] = vql_lines[-1].rstrip(',')
 vql_lines.append("    );")
-vql_lines.append(f"    DESCRIPTION = '{data['models'][0]['description']}';")
+vql_lines.append(f'DESCRIPTION = '{data["models"][0]["description"]}';')
 
+# Save to file
 os.makedirs(vql_path, exist_ok=True)
 vql_file = os.path.join(vql_path, f"{table_name}_base.vql")
 with open(vql_file, 'w') as f:
