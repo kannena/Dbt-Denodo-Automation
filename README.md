@@ -126,7 +126,7 @@ utility/
 ├── config.json                   # credentials to connect to snowflake
 configs/                   
 ├── <target_table_name>.yaml      # Filled-in by developer (column descriptions)
-├── template_config.json      # Filled-in by developer (source/target info, paths)
+├── <target_table_name>.json      # Filled-in by developer (source/target info, paths)
 │
 models/
 └── hr/
