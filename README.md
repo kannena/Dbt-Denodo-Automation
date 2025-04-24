@@ -38,7 +38,7 @@ python utility/GenerateConfigs.py
 - Script: `utility/GenerateConfigs.py`
 - Output:
   - YAML file: `<target_table_name>.yaml`
-  - Config file: `utility/config.json`
+  - Config file: `<target_table_name>.json`
 
 ---
 
@@ -46,7 +46,7 @@ python utility/GenerateConfigs.py
 
 Edit the following:
 - **`<target_table_name>.yaml`**: Add meaningful column descriptions (with help from BAs if needed).
-- **`config.json`**: Add details like:
+- **`<target_table_name>.json`**: Add details like:
   - `SourceTable`
   - `TargetTable`
   - `KeyColumns`
@@ -91,6 +91,18 @@ To update descriptions in Snowflake and dbt:
 - Open a new PR.
 - On merge, a separate GitHub Action will apply the updated descriptions in:
   - **Snowflake (via metadata update statements)**
+  - **dbt models (by updating column comments)**
+  - **Denodo views (by updating column comments)**
+
+---
+
+### Step 6: Updating Descriptions Later
+
+To update tags, schedules in dbt model:
+
+- Modify only the `<target_table_name>.json` file with new changes.
+- Open a new PR.
+- On merge, a separate GitHub Action will recreate the dbt model:
   - **dbt models (by updating column comments)**
 
 ---
