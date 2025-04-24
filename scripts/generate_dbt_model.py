@@ -3,14 +3,14 @@ import json
 import yaml
 import os
 
-# Accept table name
+# Accept table name as CLI argument
 table_name = sys.argv[1]
 
-# Paths
+# File paths
 json_path = f'configs/{table_name}.json'
 yaml_path = f'configs/{table_name}.yaml'
 
-# Load JSON
+# Load config JSON
 with open(json_path) as f:
     config = json.load(f)
 
@@ -18,7 +18,7 @@ with open(json_path) as f:
 with open(yaml_path) as f:
     data = yaml.safe_load(f)
 
-# Extract values
+# Extract data
 columns = data['models'][0]['columns']
 model_path = config["Dbtmodelpath"]
 source_table = config["SourceTable"]
@@ -28,7 +28,7 @@ tags = config["Tags"]
 key_columns = config["KeyColumns"]
 description = data['models'][0].get('description', '')
 
-# SELECT block
+# Build SELECT block
 select_lines = []
 for col in columns:
     col_name = col["name"]
@@ -36,15 +36,15 @@ for col in columns:
     if col_name == "SF_INSERT_TIMESTAMP":
         select_lines.append(f'  {col_name} AS {col_name} -- {col_comment}')
     elif col_name.endswith("_DATE"):
-        select_lines.append(f'  {{% raw %}}{{{{ string_to_timezone_ntz("{col_name}") }}}}{{% endraw %}} AS {col_name}, -- {col_comment}')
+        select_lines.append(f'  {{{{ string_to_timezone_ntz("{col_name}") }}}} AS {col_name}, -- {col_comment}')
     elif col_name.endswith("_ID"):
-        select_lines.append(f'  {{% raw %}}{{{{ string_to_number("{col_name}", 38, 0) }}}}{{% endraw %}} AS {col_name}, -- {col_comment}')
+        select_lines.append(f'  {{{{ string_to_number("{col_name}", 38, 0) }}}} AS {col_name}, -- {col_comment}')
     else:
-        select_lines.append(f'  {{% raw %}}{{{{ set_varchar_length("{col_name}", 240) }}}}{{% endraw %}} AS {col_name}, -- {col_comment}')
+        select_lines.append(f'  {{{{ set_varchar_length("{col_name}", 240) }}}} AS {col_name}, -- {col_comment}')
 
 select_block = ",\n".join(select_lines)
 
-# SQL
+# Build dbt model SQL
 sql = f"""
 {{{{ config(
     materialized='{materialization_type}',
@@ -59,10 +59,10 @@ GET_NEW_RECORDS AS (
   SELECT *, 1 AS BATCH_KEY_ID
   FROM
   {{{{ source('{source_app}', '{source_table}') }}}}
-  {{% if is_incremental() %}}
+  {% if is_incremental() %}
   WHERE
   SF_INSERT_TIMESTAMP > '{{{{ get_max_event_time("SF_INSERT_TIMESTAMP", not_minus3=True) }}}}'
-  {{% endif %}}
+  {% endif %}
 ),
 DEDUPE_CTE AS (
   SELECT *, ROW_NUMBER() OVER (PARTITION BY {", ".join(key_columns)} ORDER BY SF_INSERT_TIMESTAMP DESC) AS ROW_NUM
@@ -83,7 +83,7 @@ LEFT JOIN INS_BATCH_ID USING (BATCH_KEY_ID)
 WHERE ROW_NUM = 1;
 """
 
-# Output
+# Write the SQL file
 os.makedirs(model_path, exist_ok=True)
 output_file = os.path.join(model_path, f'{table_name}.sql')
 with open(output_file, 'w') as f:
