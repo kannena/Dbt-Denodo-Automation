@@ -2,8 +2,8 @@ name: Generate dbt model and Denodo views
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - 'configs/*.yaml'
 
 jobs:
   generate_files:
