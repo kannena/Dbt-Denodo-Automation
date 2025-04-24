@@ -2,7 +2,6 @@ import sys
 import json
 import yaml
 import os
-import re
 
 table_name = sys.argv[1]
 json_path = f'configs/{table_name}.json'
@@ -36,7 +35,7 @@ for col in columns:
     else:
         select_lines.append(f'  {{ set_varchar_length("{col_name}", 240) }} AS {col_name}, -- {col_comment}')
 
-select_block = "\n".join(select_lines)
+select_block = ",\n".join(select_lines)
 
 sql = f"""
 {{
