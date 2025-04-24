@@ -31,11 +31,14 @@ for col in columns:
     if col_name == "SF_INSERT_TIMESTAMP":
         select_lines.append(f'  {col_name} AS {col_name} -- {col_comment}')
     elif col_name.endswith("_DATE"):
-        select_lines.append(f'  {{ string_to_timezone_ntz("{col_name}") }} AS {col_name}, -- {col_comment}')
+        macro = f'string_to_timezone_ntz("{col_name}")'
+        select_lines.append(f'  {{{{ {macro} }}}} AS {col_name}, -- {col_comment}')
     elif col_name.endswith("_ID"):
-        select_lines.append(f'  {{ string_to_number("{col_name}", 38, 0) }} AS {col_name}, -- {col_comment}')
+        macro = f'string_to_number("{col_name}", 38, 0)'
+        select_lines.append(f'  {{{{ {macro} }}}} AS {col_name}, -- {col_comment}')
     else:
-        select_lines.append(f'  {{ set_varchar_length("{col_name}", 240) }} AS {col_name}, -- {col_comment}')
+        macro = f'set_varchar_length("{col_name}", 240)'
+        select_lines.append(f'  {{{{ {macro} }}}} AS {col_name}, -- {col_comment}')
 
 select_block = ",\n".join(select_lines)
 
