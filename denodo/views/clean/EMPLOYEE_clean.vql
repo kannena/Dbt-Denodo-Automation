@@ -1,7 +1,0 @@
-CREATE OR REPLACE VIEW EMPLOYEE_clean AS
-SELECT
-  EMP_ID AS EmpId (description = "Unique identifier for employee 123"),
-  FIRST_NAME AS FirstName (description = "First name of the employee"),
-  LAST_NAME AS LastName (description = "Last name of the employee"),
-  HIRE_DATE AS HireDate (description = "Hire date of the employee")
-FROM EMPLOYEE;
