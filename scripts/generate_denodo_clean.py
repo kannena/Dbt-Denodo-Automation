@@ -4,6 +4,9 @@ import yaml
 import os
 import re
 
+def to_camel_case(s):
+    return ''.join(word.capitalize() for word in re.split(r'_| ', s.lower()))
+
 table_name = sys.argv[1]
 json_path = f'configs/{table_name}.json'
 yaml_path = f'configs/{table_name}.yaml'
@@ -16,9 +19,6 @@ with open(yaml_path) as f:
 
 columns = data['models'][0]['columns']
 vql_path = config["DenodoCleanViewPath"]
-
-def to_camel_case(s):
-    return ''.join(word.capitalize() for word in re.split(r'_| ', s.lower()))
 
 select_lines = []
 for col in columns:
@@ -35,7 +35,7 @@ vql = (
 )
 
 os.makedirs(vql_path, exist_ok=True)
-vql_file = os.path.join(vql_path, f'{table_name}_clean.vql')
+vql_file = os.path.join(vql_path, f"{table_name}_clean.vql")
 with open(vql_file, 'w') as f:
     f.write(vql)
 
