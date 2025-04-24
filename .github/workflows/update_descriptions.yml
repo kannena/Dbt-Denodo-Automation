@@ -43,9 +43,10 @@ jobs:
           for file in $changed_files; do
             table_name=$(basename "$file" .yaml)
             echo "🔄 Processing table: $table_name from $file"
-
-            python scripts/update_column_descriptions.py "$file" "configs/template_config.json"
+          
+            python scripts/update_column_descriptions.py "$table_name"
             python scripts/generate_dbt_model.py "$table_name"
             python scripts/generate_denodo_base.py "$table_name"
             python scripts/generate_denodo_clean.py "$table_name"
           done
+
