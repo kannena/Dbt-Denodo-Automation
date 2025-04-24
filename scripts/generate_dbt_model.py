@@ -1,42 +1,42 @@
+import sys
+import json
+import yaml
+import os
+import re
 
-{{
-    config(
-        materialized='incremental',
-        unique_key='PK_EMPLOYEE_ID',
-        merge_no_update_columns=['SYS_CREATE_DTM'],
-        tags=['hr', 'employee']
-    )
-}}
+table_name = sys.argv[1]
+json_path = f'configs/{table_name}.json'
+yaml_path = f'configs/{table_name}.yaml'
 
--- Employee master data loaded from HR source system
-WITH
-GET_NEW_RECORDS AS (
-  SELECT *, 1 AS BATCH_KEY_ID
-  FROM
-  {{ source('STAGING', 'SRC_EMPLOYEE') }}
-  {% if is_incremental() %}
-  WHERE
-  SF_INSERT_TIMESTAMP > '{{ get_max_event_time('SF_INSERT_TIMESTAMP', not_minus3=True) }}'
-  {% endif %}
-),
-DEDUPE_CTE AS (
-  SELECT *, ROW_NUMBER() OVER (PARTITION BY EMP_ID ORDER BY SF_INSERT_TIMESTAMP DESC) AS ROW_NUM
-  FROM GET_NEW_RECORDS
-),
-INS_BATCH_ID AS (
-    SELECT TO_NUMBER(TO_VARCHAR(CURRENT_TIMESTAMP, 'YYYYMMDDHH24MISSFF3')) AS INS_BATCH_ID, 1 AS BATCH_KEY_ID
-)
+with open(json_path) as f:
+    config = json.load(f)
 
-SELECT
-  {{ generate_surrogate_key(['EMP_ID']) }} AS PK_EMPLOYEE_ID,
-  CURRENT_TIMESTAMP AS SYS_CREATE_DTM,
-  CURRENT_TIMESTAMP AS SYS_LAST_UPDATE_DTM,
-  INS_BATCH_ID AS SYS_EXEC_ID,
-  {{ string_to_number('EMP_ID', 38, 0) }} AS EMP_ID, -- Unique identifier for employee 123,
-  {{ set_varchar_length('FIRST_NAME', 240) }} AS FIRST_NAME, -- First name of the employee,
-  {{ set_varchar_length('LAST_NAME', 240) }} AS LAST_NAME, -- Last name of the employee,
-  {{ string_to_timezone_ntz('HIRE_DATE') }} AS HIRE_DATE, -- Hire date of the employee,
-  SF_INSERT_TIMESTAMP
-FROM DEDUPE_CTE
-LEFT JOIN INS_BATCH_ID USING (BATCH_KEY_ID)
-WHERE ROW_NUM = 1
+with open(yaml_path) as f:
+    data = yaml.safe_load(f)
+
+columns = data['models'][0]['columns']
+model_path = config["Dbtmodelpath"]
+source_table = config["SourceTable"]
+source_app = config["SourceApplicationName"]
+materialization_type = config["Metir# filepath: c:\Users\kannena\Downloads\GitAutomation\generate_dbt_model.py
+import sys
+import json
+import yaml
+import os
+import re
+
+table_name = sys.argv[1]
+json_path = f'configs/{table_name}.json'
+yaml_path = f'configs/{table_name}.yaml'
+
+with open(json_path) as f:
+    config = json.load)
+
+with open(yaml_path) as f:
+    data = yaml.safe_load(f)
+
+columns = data['models'][0]['columns']
+model_path = config["Dbtmodelpath"]
+source_table = config["SourceTable"]
+source_app = config["SourceApplicationName"]
+materialization_type = config["Metir
