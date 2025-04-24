@@ -4,14 +4,14 @@ CREATE OR REPLACE WRAPPER JDBC "EMPLOYEE"
     DATASOURCENAME=rsiconnections."ds_CLOUD_DW"
     RELATIONNAME='EMPLOYEE'
     OUTPUTSCHEMA (
-        "EMP_ID" = 'EMP_ID' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="16777216", description="Unique identifier for employee 12357899", sourcetypeid="12", sourcetypename="VARCHAR")
+        "EMP_ID" = 'EMP_ID' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="16777216", description="Unique identifier for employee 12", sourcetypeid="12", sourcetypename="VARCHAR")
         "FIRST_NAME" = 'FIRST_NAME' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="16777216", description="First name of the employee", sourcetypeid="12", sourcetypename="VARCHAR")
         "LAST_NAME" = 'LAST_NAME' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="16777216", description="Last name of the employee", sourcetypeid="12", sourcetypename="VARCHAR")
         "HIRE_DATE" = 'HIRE_DATE' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="16777216", description="Hire date of the employee", sourcetypeid="12", sourcetypename="DATE")
     );
 
 CREATE OR REPLACE TABLE "EMPLOYEE" I18N us_mst (
-        "EMP_ID":varchar (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="16777216", description="Unique identifier for employee 12357899")
+        "EMP_ID":varchar (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="16777216", description="Unique identifier for employee 12")
         "FIRST_NAME":varchar (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="16777216", description="First name of the employee")
         "LAST_NAME":varchar (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="16777216", description="Last name of the employee")
         "HIRE_DATE":date (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="16777216", description="Hire date of the employee")
