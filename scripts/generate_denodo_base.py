@@ -2,7 +2,6 @@ import sys
 import json
 import yaml
 import os
-import re
 
 table_name = sys.argv[1]
 json_path = f'configs/{table_name}.json'
@@ -22,8 +21,8 @@ vql_lines = [
     f'CREATE OR REPLACE WRAPPER JDBC "{table_name}"',
     "    FOLDER = '/1. virtual model/1. connectivity/2. base views/1. source views'",
     '    DATASOURCENAME=rsiconnections."ds_CLOUD_DW"',
-    f'    RELATIONNAME='{table_name}'',
-    '    OUTPUTSCHEMA ('
+    f"    RELATIONNAME='{table_name}',",
+    "    OUTPUTSCHEMA ("
 ]
 
 for col in columns:
@@ -32,9 +31,10 @@ for col in columns:
         f'(sourcetypedecimals='0', sourcetypesize='16777216', description='{col["description"]}', '
         f'sourcetypeid='12', sourcetypename='{col["data_type"]}'),'
     )
+
 vql_lines[-1] = vql_lines[-1].rstrip(',')
-vql_lines.append('    );')
-vql_lines.append('')
+vql_lines.append("    );")
+vql_lines.append("")
 vql_lines.append(f'CREATE OR REPLACE TABLE "{table_name}" I18N us_mst (')
 
 for col in columns:
@@ -43,12 +43,13 @@ for col in columns:
         f'(sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '16777216', '
         f'description = '{col["description"]}'),'
     )
+
 vql_lines[-1] = vql_lines[-1].rstrip(',')
-vql_lines.append('    );')
-vql_lines.append(f'    DESCRIPTION = '{data["models"][0]["description"]}';')
+vql_lines.append("    );")
+vql_lines.append(f"    DESCRIPTION = '{data['models'][0]['description']}';")
 
 os.makedirs(vql_path, exist_ok=True)
-vql_file = os.path.join(vql_path, f'{table_name}_base.vql')
+vql_file = os.path.join(vql_path, f"{table_name}_base.vql")
 with open(vql_file, 'w') as f:
     f.write("\n".join(vql_lines))
 
