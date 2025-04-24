@@ -19,8 +19,8 @@ def update_column_descriptions(table_name):
     print(f"config: {config}")
 
     table_name = config['TargetTable']
-    schema = config['SnowFlakeSchema']
-    database = config['SnowFlakeDatabase']
+    schema = 'STAGING'
+    database = 'DEV_EDW'
 
 
 
