@@ -1,5 +1,6 @@
 {
-  "Source_Table_name": "STG_SFDC_WORKORDER",
+  "Source_Table_name": "STG_IFP_ARPCU",
+  "Target_Table_name": "ODS_IFP_ARPCU",
   "SnowFlakeUserId": "kannena@repsrv.com",
   "SnowFlakeAccount": "rsg-nonprod",
   "SnowFlakewarehouse": "DEV_LOAD_WH",
