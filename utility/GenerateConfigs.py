@@ -3,13 +3,13 @@ import json
 import yaml
 import pandas as pd
 import os
-from collections import OrderedDict
 
 # Load Snowflake connection details from config.json
 with open('config.json', 'r') as f:
     config = json.load(f)
 
 SRC_TABLE_NAME = config['Source_Table_name']
+TGT_TABLE_NAME = config['Target_Table_name']
 UserId = config['SnowFlakeUserId']
 SnowFlakeAccount = config['SnowFlakeAccount']
 SnowFlakewarehouse = config['SnowFlakewarehouse']
@@ -19,18 +19,18 @@ SnowFlakeSchema = config['SnowFlakeSchema']
 
 # Connect to Snowflake
 con = snowflake.connector.connect(
-    user=f"{UserId}",
+    user=UserId,
     authenticator="externalbrowser",
-    account=f"{SnowFlakeAccount}",
-    warehouse=f"{SnowFlakewarehouse}",
-    role=f"{SnowFlakeRole}",
-    database=f"{SnowFlakeDatabase}",
-    schema=f"{SnowFlakeSchema}"
+    account=SnowFlakeAccount,
+    warehouse=SnowFlakewarehouse,
+    role=SnowFlakeRole,
+    database=SnowFlakeDatabase,
+    schema=SnowFlakeSchema
 )
 
-# Query Snowflake to get column metadata
+# Query column metadata
 sql = f"""
-SELECT 
+SELECT DISTINCT
     ordinal_position, 
     column_name, 
     CASE 
@@ -38,62 +38,87 @@ SELECT
         ELSE data_type 
     END AS data_type 
 FROM information_schema.columns 
-WHERE table_name = '{SRC_TABLE_NAME}' 
+WHERE table_name = '{SRC_TABLE_NAME}' AND column_name NOT LIKE 'DTL__CI_%' AND column_name NOT LIKE 'DTL__BI_%'
 ORDER BY ordinal_position
 """
 cursor = con.cursor()
 cursor.execute(sql)
 df = cursor.fetch_pandas_all()
 
-# Generate YAML file
+# Save the original first column for JSON config
+first_row = df.iloc[0]
+pk_column_name = first_row['COLUMN_NAME']
+
+# Build source columns (excluding first since it's used for PK remapping)
+source_columns = [
+    {
+        "name": row['COLUMN_NAME'],
+        "description": "",
+        "data_type": row['DATA_TYPE']
+    }
+    for i, row in df.iterrows() if i != 0
+]
+
+# Define the renamed PK column
+pk_column = {
+    "name": f"PK_{TGT_TABLE_NAME}_ID",
+    "description": "",
+    "data_type": first_row['DATA_TYPE']
+}
+
+# Define audit columns
+audit_columns = [
+    {"name": "SYS_CREATE_DTM", "description": "", "data_type": "TIMESTAMP_LTZ"},
+    {"name": "SYS_EXEC_ID", "description": "", "data_type": "NUMBER"},
+    {"name": "SYS_LAST_UPDATE_DTM", "description": "", "data_type": "TIMESTAMP_LTZ"},
+    {"name": "SYS_ACTION_CD", "description": "", "data_type": "VARCHAR"},
+    {"name": "SYS_DEL_IND", "description": "", "data_type": "VARCHAR"},
+    {"name": "SYS_VALID_IND", "description": "", "data_type": "VARCHAR"},
+    {"name": "SYS_INVALID_DESC", "description": "", "data_type": "VARCHAR"},
+    {"name": "SYS_CDC_DTM", "description": "", "data_type": "TIMESTAMP_TZ"},
+    {"name": "SYS_CDC_LIB", "description": "", "data_type": "VARCHAR"}
+]
+
+# YAML structure
 yaml_data = {
     "version": 2,
     "models": [
         {
-            "name": SRC_TABLE_NAME,
-            "description": f"{SRC_TABLE_NAME} table loaded from source system",
-            "columns": [
-                {
-                    "name": row['COLUMN_NAME'],
-                    "description": "",  # Empty description as a placeholder
-                    "data_type": row['DATA_TYPE']
-                }
-                for _, row in df.iterrows()
-            ]
+            "name": TGT_TABLE_NAME,
+            "description": f"{TGT_TABLE_NAME} table loaded from source system",
+            "columns": [pk_column] + audit_columns + source_columns
         }
     ]
 }
 
-# Custom Dumper to ensure clean YAML output
+# YAML formatting
 class CleanDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(CleanDumper, self).increase_indent(flow, False)
 
-yaml_file_path = f"{SRC_TABLE_NAME}.yaml"
+yaml_file_path = f"{TGT_TABLE_NAME}.yaml"
 with open(yaml_file_path, 'w') as yaml_file:
     yaml.dump(yaml_data, yaml_file, Dumper=CleanDumper, default_flow_style=False, sort_keys=False)
-
 print(f"✅ YAML file '{yaml_file_path}' has been created.")
 
-# Generate JSON configuration file
-config_template = {
+# JSON config
+json_config = {
     "SourceTable": SRC_TABLE_NAME,
-    "TargetTable": SRC_TABLE_NAME,
-    "KeyColumns": [df['COLUMN_NAME'][0]],  # Assuming the first column is the key
-    "SourceApplicationName": "SOURCE_APP",  # Placeholder for source application name
+    "TargetTable": TGT_TABLE_NAME,
+    "KeyColumns": [pk_column_name],  # original source PK
+    "SourceApplicationName": "SOURCE_APP",
     "MetirializationType": "incremental",
-    "Tags": ["tag1", "tag2"],  # Placeholder tags
+    "Tags": ["tag1", "tag2"],
     "DenodoBaseViewPath": "denodo/views/base/",
     "DenodoCleanViewPath": "denodo/views/clean/",
     "DenodoBusinessEntityViewPath": "denodo/views/entity/",
     "Dbtmodelpath": "models/"
 }
 
-config_file_path = f"{SRC_TABLE_NAME}.json"
-with open(config_file_path, 'w') as config_file:
-    json.dump(config_template, config_file, indent=4)
-
-print(f"✅ JSON configuration file '{config_file_path}' has been created.")
+json_file_path = f"{TGT_TABLE_NAME}.json"
+with open(json_file_path, 'w') as json_file:
+    json.dump(json_config, json_file, indent=4)
+print(f"✅ JSON configuration file '{json_file_path}' has been created.")
 
 # Close Snowflake connection
 con.close()
