@@ -30,10 +30,10 @@ SELECT
   CURRENT_TIMESTAMP AS SYS_CREATE_DTM,
   CURRENT_TIMESTAMP AS SYS_LAST_UPDATE_DTM,
   INS_BATCH_ID AS SYS_EXEC_ID,
-  {{ string_to_number("EMP_ID", 38, 0) }} AS EMP_ID, -- Unique identifier for employeey  hh8jjj8,
+  {{ string_to_number("EMP_ID", 38, 0) }} AS EMP_ID, -- Unique identifier for employeey  ggggg,
   {{ set_varchar_length("FIRST_NAME", 240) }} AS FIRST_NAME, -- First name of the employee,
   {{ set_varchar_length("LAST_NAME", 240) }} AS LAST_NAME, -- Last name of the employee,
   {{ string_to_timezone_ntz("HIRE_DATE") }} AS HIRE_DATE, -- Hire date of the employee
 FROM DEDUPE_CTE
 LEFT JOIN INS_BATCH_ID USING (BATCH_KEY_ID)
-WHERE ROW_NUM = 1;
+WHERE ROW_NUM = 1
