@@ -6,17 +6,17 @@ CREATE OR REPLACE WRAPPER JDBC "EMPLOYEE"
     SCHEMANAME='DEVELOP'
     RELATIONNAME='EMPLOYEE'
     OUTPUTSCHEMA (
-        "EMP_ID" = 'EMP_ID' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="240", description="Unique identifier for employeey  ggggg", sourcetypeid="12", sourcetypename="VARCHAR")  SORTABLE,
-        "FIRST_NAME" = 'FIRST_NAME' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="240", description="First name of the employee", sourcetypeid="12", sourcetypename="VARCHAR")  SORTABLE,
-        "LAST_NAME" = 'LAST_NAME' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="240", description="Last name of the employee", sourcetypeid="12", sourcetypename="VARCHAR")  SORTABLE,
-        "HIRE_DATE" = 'HIRE_DATE' :'java.lang.String' (OPT) (sourcetypedecimals="0", sourcetypesize="240", description="Hire date of the employee", sourcetypeid="12", sourcetypename="DATE")  SORTABLE
+        "EMP_ID" = 'EMP_ID' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='240', description='Unique identifier for employeey  hhhh', sourcetypeid='12', sourcetypename='VARCHAR')  SORTABLE,
+        "FIRST_NAME" = 'FIRST_NAME' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='240', description='First name of the employee', sourcetypeid='12', sourcetypename='VARCHAR')  SORTABLE,
+        "LAST_NAME" = 'LAST_NAME' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='240', description='Last name of the employee', sourcetypeid='12', sourcetypename='VARCHAR')  SORTABLE,
+        "HIRE_DATE" = 'HIRE_DATE' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='240', description='Hire date of the employee', sourcetypeid='12', sourcetypename='DATE')  SORTABLE
     );
 
 CREATE OR REPLACE TABLE "EMPLOYEE" I18N us_mst (
-        "EMP_ID":text (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="240", description="Unique identifier for employeey  ggggg"),
-        "FIRST_NAME":text (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="240", description="First name of the employee"),
-        "LAST_NAME":text (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="240", description="Last name of the employee"),
-        "HIRE_DATE":text (sourcetypeid="12", sourcetypedecimals="0", sourcetypesize="240", description="Hire date of the employee")
+        "EMP_ID":text (sourcetypeid='12', sourcetypedecimals='0', sourcetypesize='240', description='Unique identifier for employeey  hhhh'),
+        "FIRST_NAME":text (sourcetypeid='12', sourcetypedecimals='0', sourcetypesize='240', description='First name of the employee'),
+        "LAST_NAME":text (sourcetypeid='12', sourcetypedecimals='0', sourcetypesize='240', description='Last name of the employee'),
+        "HIRE_DATE":text (sourcetypeid='12', sourcetypedecimals='0', sourcetypesize='240', description='Hire date of the employee')
     )
     FOLDER = '/1. virtual model/1. connectivity/2. base views/1. source views'
     CACHE OFF
